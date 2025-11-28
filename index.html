@@ -1,24 +1,870 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ultimate Combat - High-Energy Fighting Game</title>
-    <meta name="description" content="Experience the most intense fighting action with Ultimate Combat. Lightning-fast 60 FPS gameplay, explosive special moves, and competitive online battles." />
-    <meta name="author" content="Ultimate Combat Studios" />
+<head>
+  <meta charset="UTF-8" />
+  <title>AR Movie Info App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <meta property="og:title" content="Ultimate Combat - High-Energy Fighting Game" />
-    <meta property="og:description" content="Experience the most intense fighting action with lightning-fast gameplay and explosive special moves." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+  <!-- Poppins font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-  </head>
+  <!-- Material Symbols (icons) -->
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+  />
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+  <!-- Tailwind config (must be before CDN script) -->
+  <script>
+    tailwind = {
+      config: {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#256af4",
+              background: "#0A192F",
+              textlight: "#E6F1FF",
+            },
+            fontFamily: {
+              poppins: ["Poppins", "system-ui", "sans-serif"],
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Tailwind CSS CDN with plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <!-- Custom styles -->
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    body {
+      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 0% 0%, #112240 0, #020617 45%, #000000 100%);
+      color: #e6f1ff;
+    }
+
+    /* Glassmorphism card */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Hide scrollbars */
+    .no-scrollbar {
+      -ms-overflow-style: none; /* IE/Edge */
+      scrollbar-width: none; /* Firefox */
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+
+    /* Splash screen fade */
+    #splashScreen {
+      transition: opacity 0.7s ease;
+    }
+    #splashScreen.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Loader spinner */
+    .loader {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 9999px;
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      border-top-color: #256af4;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Glow effects */
+    .btn-glow:hover,
+    .btn-glow:focus-visible {
+      box-shadow: 0 0 20px rgba(37, 106, 244, 0.7);
+    }
+
+    .input-glow:focus-visible {
+      box-shadow: 0 0 16px rgba(37, 106, 244, 0.7);
+      outline: none;
+    }
+
+    /* Navigation icons: filled when active */
+    .nav-link .material-symbols-outlined {
+      font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    }
+
+    .nav-link-active .material-symbols-outlined {
+      font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+    }
+
+    /* Drawer transitions */
+    .drawer-panel {
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+  </style>
+</head>
+<body
+  class="min-h-screen text-textlight bg-black/80 overflow-hidden no-scrollbar"
+>
+  <!-- SPLASH SCREEN -->
+  <div
+    id="splashScreen"
+    class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80"
+  >
+    <div
+      class="glass-card px-10 py-8 rounded-3xl flex flex-col items-center gap-4 shadow-2xl"
+    >
+      <div
+        class="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center"
+      >
+        <span class="material-symbols-outlined text-primary text-4xl">
+          movie
+        </span>
+      </div>
+      <div class="text-center">
+        <h1 class="text-2xl font-semibold tracking-wide">
+          AR Movie Info
+        </h1>
+        <p class="text-xs text-slate-300 mt-1">
+          Loading cinematic goodness...
+        </p>
+      </div>
+      <div class="loader mt-2"></div>
+    </div>
+  </div>
+
+  <!-- APP SHELL -->
+  <div
+    class="relative min-h-screen flex bg-gradient-to-b from-slate-950 via-background to-black"
+  >
+    <!-- Mobile top bar -->
+    <header
+      class="fixed top-0 left-0 right-0 z-30 glass-card flex items-center justify-between px-4 py-3 md:hidden"
+    >
+      <button
+        id="menuButton"
+        class="flex items-center justify-center w-10 h-10 rounded-full border border-white/10 bg-black/40 hover:bg-black/70 transition btn-glow"
+        aria-label="Open navigation"
+      >
+        <span class="material-symbols-outlined text-xl"> menu </span>
+      </button>
+      <div class="flex items-center gap-2">
+        <span
+          class="material-symbols-outlined text-primary text-3xl -mt-0.5"
+        >
+          movie
+        </span>
+        <span class="font-semibold tracking-wide text-sm">
+          AR Movie Info
+        </span>
+      </div>
+      <div class="w-10"></div>
+    </header>
+
+    <!-- Drawer overlay (mobile) -->
+    <div
+      id="drawerOverlay"
+      class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none md:hidden transition-opacity"
+    ></div>
+
+    <!-- Sidebar / Navigation -->
+    <aside
+      id="sidebar"
+      class="drawer-panel fixed md:static inset-y-0 left-0 z-50 md:z-20 w-64 md:w-72 glass-card md:rounded-none rounded-r-3xl shadow-2xl md:shadow-none transform -translate-x-full md:translate-x-0 flex flex-col"
+    >
+      <div class="hidden md:flex items-center gap-3 px-6 pt-6 pb-4">
+        <span
+          class="material-symbols-outlined text-primary text-4xl -mt-0.5"
+        >
+          movie
+        </span>
+        <div>
+          <h1 class="font-semibold tracking-wide text-lg">
+            AR Movie Info
+          </h1>
+          <p class="text-xs text-slate-400">
+            Discover movies in seconds
+          </p>
+        </div>
+      </div>
+
+      <nav class="mt-4 md:mt-2 px-2 space-y-1">
+        <!-- Home -->
+        <button
+          class="nav-link nav-link-active w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium hover:bg-white/5 transition group relative"
+          data-view="homeView"
+        >
+          <span
+            class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 rounded-full bg-primary/90 nav-active-bar"
+          ></span>
+          <span
+            class="material-symbols-outlined text-base text-primary group-hover:scale-110 transition-transform"
+          >
+            home
+          </span>
+          <span>Home</span>
+        </button>
+
+        <!-- Popular Movies -->
+        <button
+          class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium hover:bg-white/5 transition group relative"
+          data-view="popularView"
+        >
+          <span
+            class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 rounded-full bg-primary/0 nav-active-bar"
+          ></span>
+          <span class="material-symbols-outlined text-base text-slate-300">
+            local_fire_department
+          </span>
+          <span>Popular Movies</span>
+        </button>
+
+        <!-- About -->
+        <button
+          class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium hover:bg-white/5 transition group relative"
+          data-view="aboutView"
+        >
+          <span
+            class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 rounded-full bg-primary/0 nav-active-bar"
+          ></span>
+          <span class="material-symbols-outlined text-base text-slate-300">
+            info
+          </span>
+          <span>About App</span>
+        </button>
+
+        <!-- Contact -->
+        <button
+          class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium hover:bg-white/5 transition group relative"
+          data-view="contactView"
+        >
+          <span
+            class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 rounded-full bg-primary/0 nav-active-bar"
+          ></span>
+          <span class="material-symbols-outlined text-base text-slate-300">
+            person
+          </span>
+          <span>Contact Developer</span>
+        </button>
+      </nav>
+
+      <div class="mt-auto px-6 pb-6 hidden md:block">
+        <div class="glass-card rounded-2xl px-4 py-3 text-xs text-slate-300">
+          <p class="font-medium mb-1 text-[0.7rem] tracking-wide">
+            TIP
+          </p>
+          <p>
+            Search any movie title in
+            <span class="font-semibold text-primary">Home</span> to see its
+            poster, cast, ratings, and more.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main
+      class="flex-1 flex flex-col md:pl-0 pt-[4.25rem] md:pt-0 md:ml-0"
+    >
+      <div
+        class="relative max-w-5xl mx-auto w-full px-4 md:px-8 lg:px-10 py-5 md:py-8"
+      >
+        <!-- Home / Search View -->
+        <section id="homeView" class="space-y-6">
+          <!-- Search card -->
+          <div
+            class="glass-card rounded-3xl px-4 py-4 md:px-6 md:py-5 shadow-2xl/40"
+          >
+            <div
+              class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
+            >
+              <div>
+                <h2
+                  class="text-lg md:text-xl font-semibold tracking-wide flex items-center gap-2"
+                >
+                  <span class="material-symbols-outlined text-primary">
+                    search
+                  </span>
+                  Search Movies
+                </h2>
+                <p class="text-xs md:text-sm text-slate-400 mt-1">
+                  Type a movie title and get instant details from OMDb.
+                </p>
+              </div>
+            </div>
+
+            <!-- Search form -->
+            <form id="searchForm" class="mt-4 space-y-3">
+              <div class="flex flex-col md:flex-row md:items-center gap-3">
+                <div class="flex-1 relative">
+                  <span
+                    class="material-symbols-outlined text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 text-lg"
+                  >
+                    movie
+                  </span>
+                  <input
+                    id="searchInput"
+                    type="text"
+                    placeholder="Enter movie title e.g. Interstellar"
+                    class="input-glow bg-black/40 border border-white/10 focus:border-primary/70 text-sm md:text-base text-textlight placeholder:text-slate-500 rounded-2xl pl-10 pr-3 py-2.5 md:py-3 w-full transition"
+                    autocomplete="off"
+                  />
+                </div>
+
+                <div class="flex gap-2 md:gap-3">
+                  <button
+                    type="submit"
+                    class="btn-glow inline-flex items-center justify-center gap-1.5 px-4 md:px-5 py-2.5 rounded-2xl text-xs md:text-sm font-medium bg-primary text-white shadow-lg shadow-primary/40 hover:bg-primary/90 transition"
+                  >
+                    <span class="material-symbols-outlined text-sm">
+                      search
+                    </span>
+                    Search
+                  </button>
+
+                  <button
+                    type="button"
+                    id="clearButton"
+                    class="btn-glow inline-flex items-center justify-center gap-1.5 px-3.5 md:px-4 py-2.5 rounded-2xl text-xs md:text-sm font-medium border border-white/15 bg-white/5 hover:bg-white/10 transition text-slate-200"
+                  >
+                    <span class="material-symbols-outlined text-sm">
+                      close
+                    </span>
+                    Clear
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Search results -->
+          <div id="resultsContainer" class="space-y-4 md:space-y-5"></div>
+        </section>
+
+        <!-- Popular Movies View -->
+        <section id="popularView" class="hidden space-y-4 md:space-y-6">
+          <div class="glass-card rounded-3xl px-4 py-4 md:px-6 md:py-5">
+            <h2
+              class="text-lg md:text-xl font-semibold tracking-wide flex items-center gap-2"
+            >
+              <span class="material-symbols-outlined text-primary">
+                local_fire_department
+              </span>
+              Popular Movies
+            </h2>
+            <p class="text-xs md:text-sm text-slate-400 mt-1">
+              A curated list of top-rated movies fetched via their IMDb IDs.
+            </p>
+          </div>
+
+          <div
+            id="popularContainer"
+            class="space-y-4 md:space-y-5"
+          ></div>
+        </section>
+
+        <!-- About View -->
+        <section id="aboutView" class="hidden">
+          <div
+            class="glass-card rounded-3xl px-4 py-5 md:px-7 md:py-7 shadow-2xl/40"
+          >
+            <h2
+              class="text-lg md:text-xl font-semibold tracking-wide flex items-center gap-2"
+            >
+              <span class="material-symbols-outlined text-primary">
+                info
+              </span>
+              About AR Movie Info
+            </h2>
+            <p class="mt-3 text-sm md:text-base text-slate-300 leading-relaxed">
+              <span class="font-semibold text-primary">AR Movie Info</span>
+              helps you discover details of any movie instantly. Simply search
+              for a title to get a rich, cinematic card with its
+              <span class="font-medium">poster, cast, director, ratings,</span>
+              and more — all wrapped in a modern glassmorphism interface.
+            </p>
+            <p class="mt-3 text-xs md:text-sm text-slate-400">
+              The app uses the
+              <span class="font-semibold">OMDb API</span> as its movie data
+              source and demonstrates a clean, responsive frontend built with
+              HTML, Tailwind CSS, and Vanilla JavaScript.
+            </p>
+          </div>
+        </section>
+
+        <!-- Contact View -->
+        <section id="contactView" class="hidden">
+          <div
+            class="glass-card rounded-3xl px-4 py-5 md:px-7 md:py-7 shadow-2xl/40"
+          >
+            <h2
+              class="text-lg md:text-xl font-semibold tracking-wide flex items-center gap-2"
+            >
+              <span class="material-symbols-outlined text-primary">
+                person
+              </span>
+              Contact Developer
+            </h2>
+            <p class="mt-3 text-sm md:text-base text-slate-300 leading-relaxed">
+              This app is crafted with care by
+              <span class="font-semibold">Abhishek Nayak</span>.
+            </p>
+            <p class="mt-3 text-xs md:text-sm text-slate-400 leading-relaxed">
+              It showcases a modern, responsive movie-info frontend
+              leveraging glassmorphism, smooth animations, and clean API
+              integration with OMDb. You can use this interface as a
+              starting point for your own movie apps, dashboards, or
+              entertainment platforms.
+            </p>
+          </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="mt-10 md:mt-14 pb-6 text-center text-[0.7rem] md:text-xs text-slate-500">
+          🎬 <span class="font-medium text-slate-300">AR Movie Info</span>
+          <span class="mx-1.5 text-slate-500">|</span>
+          Powered by
+          <span class="font-medium text-slate-300">
+            Abhishek Nayak
+          </span>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <!-- APP LOGIC -->
+  <script>
+    // =============================
+    // CONFIG
+    // =============================
+    const apiKey = "YOUR_OMDB_API_KEY_HERE"; // <-- Put your OMDb key here
+    const omdbBaseUrl = "https://www.omdbapi.com/";
+
+    // Placeholder popular movies (IMDb IDs, can be replaced with real ones)
+    const popularImdbIds = [
+      "tt0000001",
+      "tt0000002",
+      "tt0000003",
+      "tt0000004",
+      "tt0000005",
+      "tt0000006",
+    ];
+
+    let popularLoaded = false;
+
+    // =============================
+    // UTILITIES
+    // =============================
+
+    function sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function fetchWithRetry(url, maxRetries = 3) {
+      let lastError;
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) {
+            throw new Error("HTTP error: " + res.status);
+          }
+          const data = await res.json();
+          if (data.Response === "False") {
+            throw new Error(data.Error || "Movie not found");
+          }
+          return data;
+        } catch (err) {
+          lastError = err;
+          if (attempt < maxRetries) {
+            const delay = 500 * Math.pow(2, attempt - 1);
+            await sleep(delay);
+          }
+        }
+      }
+      throw lastError;
+    }
+
+    function createMovieCard(movie) {
+      const poster =
+        movie.Poster && movie.Poster !== "N/A"
+          ? movie.Poster
+          : "https://placehold.co/600x400/0A192F/E6F1FF?text=No+Poster";
+
+      const ratingText =
+        movie.imdbRating && movie.imdbRating !== "N/A"
+          ? `${movie.imdbRating} / 10`
+          : "N/A";
+
+      const youtubeUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(
+        `${movie.Title} ${movie.Year} official trailer`
+      )}`;
+
+      const details = {
+        Director: movie.Director,
+        Actors: movie.Actors,
+        Genre: movie.Genre,
+        Runtime: movie.Runtime,
+        Language: movie.Language,
+      };
+
+      const detailEntries = Object.entries(details);
+
+      return `
+        <article class="glass-card rounded-3xl overflow-hidden shadow-xl/40">
+          <div class="flex flex-col md:flex-row">
+            <!-- Poster -->
+            <div class="md:w-1/3 lg:w-1/4 relative">
+              <div class="h-56 md:h-full w-full overflow-hidden">
+                <img
+                  src="${poster}"
+                  alt="Poster of ${movie.Title}"
+                  class="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+
+            <!-- Info -->
+            <div class="flex-1 p-4 md:p-5 lg:p-6 flex flex-col gap-3">
+              <div class="flex flex-wrap justify-between gap-3">
+                <div>
+                  <h3 class="text-lg md:text-xl font-semibold tracking-wide">
+                    ${movie.Title || "Unknown Title"}
+                  </h3>
+                  <div class="flex items-center gap-2 text-xs md:text-sm text-slate-400 mt-1">
+                    <span>${movie.Year || "—"}</span>
+                    <span class="w-1 h-1 rounded-full bg-slate-500"></span>
+                    <span>${movie.Rated || "Not Rated"}</span>
+                    <span class="w-1 h-1 rounded-full bg-slate-500"></span>
+                    <span>${movie.Type ? movie.Type.toUpperCase() : "MOVIE"}</span>
+                  </div>
+                </div>
+
+                <div class="flex items-start md:items-center gap-2">
+                  <div
+                    class="flex items-center gap-1 rounded-2xl bg-black/40 border border-yellow-400/40 px-2.5 py-1.5 text-xs md:text-sm"
+                  >
+                    <span class="material-symbols-outlined text-yellow-400 text-base">
+                      star
+                    </span>
+                    <span class="font-semibold text-slate-100">
+                      ${ratingText}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              ${
+                movie.Plot && movie.Plot !== "N/A"
+                  ? `<p class="text-xs md:text-sm text-slate-200 leading-relaxed line-clamp-[10] md:line-clamp-none">
+                    ${movie.Plot}
+                  </p>`
+                  : ""
+              }
+
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-2.5 text-[0.68rem] md:text-xs mt-1">
+                ${detailEntries
+                  .map(([label, value]) => {
+                    const safeValue =
+                      value && value !== "N/A" ? value : "Unknown";
+                    return `
+                    <div class="rounded-2xl bg-white/5 border border-white/10 px-3 py-2">
+                      <p class="uppercase tracking-wide text-[0.65rem] text-slate-400 mb-0.5">
+                        ${label}
+                      </p>
+                      <p class="text-slate-100 line-clamp-2">
+                        ${safeValue}
+                      </p>
+                    </div>
+                  `;
+                  })
+                  .join("")}
+              </div>
+
+              <div class="mt-2 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  data-youtube-url="${youtubeUrl}"
+                  class="btn-glow inline-flex items-center gap-1.5 rounded-2xl bg-primary text-white text-xs md:text-sm font-medium px-3.5 md:px-4 py-2 shadow-lg shadow-primary/40 hover:bg-primary/90 transition watch-trailer-btn"
+                >
+                  <span class="material-symbols-outlined text-sm">
+                    play_circle
+                  </span>
+                  Watch Trailer
+                </button>
+
+                <div class="text-[0.65rem] md:text-[0.7rem] text-slate-500 text-right">
+                  <p>IMDb ID: ${movie.imdbID || "N/A"}</p>
+                  ${
+                    movie.Released && movie.Released !== "N/A"
+                      ? `<p>Released: ${movie.Released}</p>`
+                      : ""
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function createLoadingCard(message = "Fetching movie info...") {
+      return `
+        <div class="glass-card rounded-3xl px-4 py-4 md:px-6 md:py-5 flex items-center gap-3">
+          <div class="loader w-8 h-8 border-2"></div>
+          <div>
+            <p class="text-sm md:text-base font-medium">${message}</p>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Talking to OMDb API with retry logic...
+            </p>
+          </div>
+        </div>
+      `;
+    }
+
+    function createErrorCard(message) {
+      return `
+        <div class="glass-card rounded-3xl px-4 py-4 md:px-6 md:py-5 border border-red-500/40 bg-red-500/5">
+          <div class="flex items-start gap-3">
+            <div
+              class="flex items-center justify-center w-9 h-9 rounded-full bg-red-500/20 border border-red-400/50"
+            >
+              <span class="material-symbols-outlined text-red-400 text-lg">
+                error
+              </span>
+            </div>
+            <div>
+              <p class="text-sm md:text-base font-semibold text-red-300">
+                Oops! Something went wrong.
+              </p>
+              <p class="text-xs md:text-sm text-slate-200 mt-1">
+                ${message || "We couldn't fetch movie data from OMDb right now."}
+              </p>
+              <p class="text-[0.65rem] text-slate-500 mt-1.5">
+                Tip: Check your internet connection, verify the title or IMDb ID,
+                and make sure your OMDb API key is valid.
+              </p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function handleTrailerButtonsClick(container) {
+      container.addEventListener("click", (e) => {
+        const btn = e.target.closest(".watch-trailer-btn");
+        if (!btn) return;
+        const url = btn.getAttribute("data-youtube-url");
+        if (url) {
+          window.open(url, "_blank", "noopener,noreferrer");
+        }
+      });
+    }
+
+    // =============================
+    // VIEW MANAGEMENT
+    // =============================
+
+    function switchView(targetId) {
+      const views = ["homeView", "popularView", "aboutView", "contactView"];
+      views.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (id === targetId) {
+          el.classList.remove("hidden");
+        } else {
+          el.classList.add("hidden");
+        }
+      });
+
+      document.querySelectorAll(".nav-link").forEach((btn) => {
+        const view = btn.getAttribute("data-view");
+        const bar = btn.querySelector(".nav-active-bar");
+        if (view === targetId) {
+          btn.classList.add("nav-link-active");
+          btn.classList.add("bg-white/5");
+          if (bar) bar.classList.add("bg-primary/90");
+        } else {
+          btn.classList.remove("nav-link-active");
+          btn.classList.remove("bg-white/5");
+          if (bar) bar.classList.remove("bg-primary/90");
+        }
+      });
+
+      // Lazy-load popular movies
+      if (targetId === "popularView" && !popularLoaded) {
+        loadPopularMovies();
+      }
+    }
+
+    function openDrawer() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("drawerOverlay");
+      sidebar.style.transform = "translateX(0)";
+      overlay.classList.remove("pointer-events-none");
+      overlay.classList.remove("opacity-0");
+      overlay.classList.add("opacity-100");
+    }
+
+    function closeDrawer() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("drawerOverlay");
+      sidebar.style.transform = "translateX(-100%)";
+      overlay.classList.add("pointer-events-none");
+      overlay.classList.add("opacity-0");
+      overlay.classList.remove("opacity-100");
+    }
+
+    // =============================
+    // SEARCH LOGIC
+    // =============================
+
+    async function performSearch(title) {
+      const trimmed = (title || "").trim();
+      const resultsContainer = document.getElementById("resultsContainer");
+
+      if (!trimmed) {
+        resultsContainer.innerHTML = createErrorCard(
+          "Please enter a movie title before searching."
+        );
+        return;
+      }
+
+      const url = `${omdbBaseUrl}?t=${encodeURIComponent(
+        trimmed
+      )}&apikey=${encodeURIComponent(apiKey)}&plot=full`;
+
+      resultsContainer.innerHTML = createLoadingCard();
+
+      try {
+        const movie = await fetchWithRetry(url, 3);
+        resultsContainer.innerHTML = createMovieCard(movie);
+        handleTrailerButtonsClick(resultsContainer);
+      } catch (err) {
+        resultsContainer.innerHTML = createErrorCard(
+          err && err.message ? err.message : "Failed to fetch movie details."
+        );
+      }
+    }
+
+    // =============================
+    // POPULAR MOVIES
+    // =============================
+
+    async function loadPopularMovies() {
+      const container = document.getElementById("popularContainer");
+      container.innerHTML = createLoadingCard("Loading popular movies...");
+
+      try {
+        const cards = [];
+        for (const imdbID of popularImdbIds) {
+          const url = `${omdbBaseUrl}?i=${encodeURIComponent(
+            imdbID
+          )}&apikey=${encodeURIComponent(apiKey)}&plot=full`;
+          try {
+            const movie = await fetchWithRetry(url, 3);
+            cards.push(createMovieCard(movie));
+          } catch (err) {
+            cards.push(
+              createErrorCard(
+                `Could not load movie with IMDb ID: ${imdbID}. ${err.message}`
+              )
+            );
+          }
+        }
+        container.innerHTML = cards.join("");
+        handleTrailerButtonsClick(container);
+        popularLoaded = true;
+      } catch (err) {
+        container.innerHTML = createErrorCard(
+          err && err.message
+            ? err.message
+            : "Failed to load popular movies."
+        );
+      }
+    }
+
+    // =============================
+    // INIT
+    // =============================
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const splash = document.getElementById("splashScreen");
+      const menuButton = document.getElementById("menuButton");
+      const drawerOverlay = document.getElementById("drawerOverlay");
+
+      const searchForm = document.getElementById("searchForm");
+      const searchInput = document.getElementById("searchInput");
+      const clearButton = document.getElementById("clearButton");
+      const resultsContainer = document.getElementById("resultsContainer");
+
+      // Splash screen timeout
+      setTimeout(() => {
+        splash.classList.add("fade-out");
+      }, 2000);
+
+      // Nav clicks
+      document.querySelectorAll(".nav-link").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const view = btn.getAttribute("data-view");
+          switchView(view);
+
+          // Close drawer on mobile after navigating
+          if (window.innerWidth < 768) {
+            closeDrawer();
+          }
+        });
+      });
+
+      // Drawer toggles (mobile)
+      if (menuButton) {
+        menuButton.addEventListener("click", openDrawer);
+      }
+      if (drawerOverlay) {
+        drawerOverlay.addEventListener("click", closeDrawer);
+      }
+
+      // Search form submit
+      searchForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        performSearch(searchInput.value);
+      });
+
+      // Clear button
+      clearButton.addEventListener("click", () => {
+        searchInput.value = "";
+        resultsContainer.innerHTML = "";
+        searchInput.focus();
+      });
+
+      // Enter key quick search, already handled by form, no extra needed
+
+      // Initial view
+      switchView("homeView");
+    });
+  </script>
+</body>
 </html>
