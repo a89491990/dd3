@@ -1,29 +1,32 @@
--- projects টেবিল তৈরি করুন
-CREATE TABLE projects (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  link TEXT,
-  notes TEXT,
-  reminder TEXT DEFAULT 'none',
-  image TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Row Level Security (RLS) enable করুন
-ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
-
--- সবাই দেখতে পারবে (পাবলিক রিড)
-CREATE POLICY "Allow public read access" ON projects
-  FOR SELECT USING (true);
-
--- শুধু authenticated ইউজাররা insert করতে পারবে
--- (আপনার এপ্লিকেশন সম্পূর্ণ পাবলিক তাই আমরা সবাইকে insert/update/delete এর permission দিচ্ছি)
-CREATE POLICY "Allow public insert" ON projects
-  FOR INSERT WITH CHECK (true);
-
-CREATE POLICY "Allow public update" ON projects
-  FOR UPDATE USING (true);
-
-CREATE POLICY "Allow public delete" ON projects
-  FOR DELETE USING (true);
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Quick Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <button onclick="testConnection()">টেস্ট কানেকশন</button>
+  <div id="result"></div>
+  
+  <script>
+    const supabase = window.supabase.createClient(
+      "https://yaeppksdkvoxaguxonni.supabase.co",
+      "sb_publishable_6InOhpaMrc-wIZQvh9ejVg_0G9D46Yf"
+    );
+    
+    async function testConnection() {
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*');
+          
+        document.getElementById('result').innerHTML = 
+          error ? `Error: ${error.message}` : 
+          `Success! Found ${data.length} projects`;
+      } catch(err) {
+        document.getElementById('result').innerHTML = `Exception: ${err}`;
+      }
+    }
+  </script>
+</body>
+</html>
